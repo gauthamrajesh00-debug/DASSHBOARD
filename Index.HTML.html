@@ -1,0 +1,767 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2487.4">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">import React, { useState, useEffect } from 'react';</p>
+<p class="p1">import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LineChart, Line, PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';</p>
+<p class="p1">import { Calendar, Users, DollarSign, TrendingUp, PlusCircle, Filter, Search, Edit3, Trash2, Eye } from 'lucide-react';</p>
+<p class="p2"><br></p>
+<p class="p1">const ResortDashboard = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>// Sample data for demonstration</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const [guests, setGuests] = useState([</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ id: 1, name: 'John Smith', checkIn: '2024-08-10', checkOut: '2024-08-15', room: 'Full Villa', status: 'checked-out', revenue: 96000, guests: 2, source: 'B2C' },</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ id: 2, name: 'Maria Garcia', checkIn: '2024-08-12', checkOut: '2024-08-18', room: 'Top Floor', status: 'active', revenue: 144000, guests: 3, source: 'B2B' },</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ id: 3, name: 'David Johnson', checkIn: '2024-08-14', checkOut: '2024-08-16', room: 'Bottom Floor', status: 'active', revenue: 48000, guests: 1, source: 'B2C' },</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ id: 4, name: 'Lisa Anderson', checkIn: '2024-08-16', checkOut: '2024-08-20', room: 'Full Villa', status: 'active', revenue: 112000, guests: 2, source: 'B2B' },</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ id: 5, name: 'Michael Brown', checkIn: '2024-08-08', checkOut: '2024-08-14', room: 'Top Floor', status: 'checked-out', revenue: 144000, guests: 4, source: 'B2C' }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>const [expenses, setExpenses] = useState([</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ id: 1, category: 'Maintenance', amount: 40000, date: '2024-08-10', description: 'Pool cleaning equipment' },</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ id: 2, category: 'Staff', amount: 240000, date: '2024-08-01', description: 'Monthly salaries' },</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ id: 3, category: 'Utilities', amount: 64000, date: '2024-08-05', description: 'Electricity bill' },</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ id: 4, category: 'Supplies', amount: 36000, date: '2024-08-12', description: 'Housekeeping supplies' },</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ id: 5, category: 'Marketing', amount: 48000, date: '2024-08-14', description: 'Social media ads' }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>const [activeTab, setActiveTab] = useState('dashboard');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const [showAddGuest, setShowAddGuest] = useState(false);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const [showAddExpense, setShowAddExpense] = useState(false);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const [searchTerm, setSearchTerm] = useState('');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const [dateFilter, setDateFilter] = useState('');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>// New guest form state</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const [newGuest, setNewGuest] = useState({</p>
+<p class="p1"><span class="Apple-converted-space">    </span>name: '', checkIn: '', checkOut: '', room: '', guests: 1, revenue: 0, source: 'B2C'</p>
+<p class="p1"><span class="Apple-converted-space">  </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>// New expense form state</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const [newExpense, setNewExpense] = useState({</p>
+<p class="p1"><span class="Apple-converted-space">    </span>category: 'Maintenance', amount: 0, date: '', description: ''</p>
+<p class="p1"><span class="Apple-converted-space">  </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>// Calculate metrics</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const totalRevenue = guests.reduce((sum, guest) =&gt; sum + guest.revenue, 0);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const totalExpenses = expenses.reduce((sum, expense) =&gt; sum + expense.amount, 0);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const netProfit = totalRevenue - totalExpenses;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const activeGuests = guests.filter(guest =&gt; guest.status === 'active').length;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const occupancyRate = Math.round((activeGuests / 10) * 100); // Assuming 10 total rooms</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>// Chart data</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const revenueData = [</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ name: 'Aug 10', revenue: 96000, expenses: 40000 },</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ name: 'Aug 11', revenue: 64000, expenses: 24000 },</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ name: 'Aug 12', revenue: 176000, expenses: 36000 },</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ name: 'Aug 13', revenue: 120000, expenses: 16000 },</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ name: 'Aug 14', revenue: 160000, expenses: 48000 },</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ name: 'Aug 15', revenue: 144000, expenses: 32000 },</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ name: 'Aug 16', revenue: 192000, expenses: 28000 }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>const expenseCategories = [</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ name: 'Staff', value: 240000, color: '#8884d8' },</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ name: 'Utilities', value: 64000, color: '#82ca9d' },</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ name: 'Marketing', value: 48000, color: '#ffc658' },</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ name: 'Maintenance', value: 40000, color: '#ff7c7c' },</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ name: 'Supplies', value: 36000, color: '#8dd1e1' }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>// Add new guest</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const handleAddGuest = (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>e.preventDefault();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if (!newGuest.name || !newGuest.checkIn || !newGuest.checkOut || !newGuest.room || !newGuest.revenue) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>alert('Please fill in all required fields');</p>
+<p class="p1"><span class="Apple-converted-space">      </span>return;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const guest = {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>id: Date.now(), // Use timestamp for unique ID</p>
+<p class="p1"><span class="Apple-converted-space">      </span>...newGuest,</p>
+<p class="p1"><span class="Apple-converted-space">      </span>status: 'active',</p>
+<p class="p1"><span class="Apple-converted-space">      </span>revenue: parseFloat(newGuest.revenue) || 0,</p>
+<p class="p1"><span class="Apple-converted-space">      </span>guests: parseInt(newGuest.guests) || 1</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p1"><span class="Apple-converted-space">    </span>setGuests(prevGuests =&gt; [...prevGuests, guest]);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>setNewGuest({ name: '', checkIn: '', checkOut: '', room: '', guests: 1, revenue: 0, source: 'B2C' });</p>
+<p class="p1"><span class="Apple-converted-space">    </span>setShowAddGuest(false);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>alert('Guest added successfully!');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>// Add new expense</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const handleAddExpense = (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>e.preventDefault();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if (!newExpense.description || !newExpense.date || !newExpense.amount) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>alert('Please fill in all required fields');</p>
+<p class="p1"><span class="Apple-converted-space">      </span>return;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const expense = {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>id: Date.now(), // Use timestamp for unique ID</p>
+<p class="p1"><span class="Apple-converted-space">      </span>...newExpense,</p>
+<p class="p1"><span class="Apple-converted-space">      </span>amount: parseFloat(newExpense.amount) || 0</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p1"><span class="Apple-converted-space">    </span>setExpenses(prevExpenses =&gt; [...prevExpenses, expense]);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>setNewExpense({ category: 'Maintenance', amount: 0, date: '', description: '' });</p>
+<p class="p1"><span class="Apple-converted-space">    </span>setShowAddExpense(false);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>alert('Expense added successfully!');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>// Filter guests based on search and date</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const filteredGuests = guests.filter(guest =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const matchesSearch = guest.name.toLowerCase().includes(searchTerm.toLowerCase()) ||</p>
+<p class="p1"><span class="Apple-converted-space">                         </span>guest.room.toLowerCase().includes(searchTerm.toLowerCase());</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const matchesDate = !dateFilter || guest.checkIn &gt;= dateFilter;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>return matchesSearch &amp;&amp; matchesDate;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>// Delete guest function</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const handleDeleteGuest = (guestId) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if (window.confirm('Are you sure you want to delete this guest?')) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>setGuests(guests.filter(guest =&gt; guest.id !== guestId));</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>// Delete expense function</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const handleDeleteExpense = (expenseId) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if (window.confirm('Are you sure you want to delete this expense?')) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>setExpenses(expenses.filter(expense =&gt; expense.id !== expenseId));</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div className="min-h-screen bg-gray-50"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{/* Header */}</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div className="bg-white shadow-sm border-b"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div className="flex justify-between items-center py-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;h1 className="text-2xl font-bold text-gray-900"&gt;Edriz Ville&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;p className="text-gray-600"&gt;Artistic Home&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="text-sm text-gray-500 font-medium"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>Make Idrees Rich :)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>{/* Navigation Tabs */}</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div className="bg-white border-b"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div className="flex space-x-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{['dashboard', 'guests', 'expenses', 'analytics'].map((tab) =&gt; (</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;button</p>
+<p class="p1"><span class="Apple-converted-space">                </span>key={tab}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>onClick={() =&gt; setActiveTab(tab)}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>className={`py-4 px-2 border-b-2 font-medium text-sm capitalize ${</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>activeTab === tab</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>? 'border-blue-500 text-blue-600'</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>: 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}`}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>{tab}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>))}</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{activeTab === 'dashboard' &amp;&amp; (</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{/* Key Metrics */}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="bg-white rounded-lg shadow p-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div className="flex items-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;div className="p-2 bg-blue-100 rounded-lg"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;DollarSign className="w-6 h-6 text-blue-600" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;div className="ml-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p className="text-sm font-medium text-gray-600"&gt;Total Revenue&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p className="text-2xl font-bold text-gray-900"&gt;₹{totalRevenue.toLocaleString('en-IN')}&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="bg-white rounded-lg shadow p-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div className="flex items-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;div className="p-2 bg-red-100 rounded-lg"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;TrendingUp className="w-6 h-6 text-red-600" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;div className="ml-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p className="text-sm font-medium text-gray-600"&gt;Total Expenses&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p className="text-2xl font-bold text-gray-900"&gt;₹{totalExpenses.toLocaleString('en-IN')}&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="bg-white rounded-lg shadow p-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div className="flex items-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;div className="p-2 bg-green-100 rounded-lg"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;DollarSign className="w-6 h-6 text-green-600" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;div className="ml-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p className="text-sm font-medium text-gray-600"&gt;Net Profit&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p className="text-2xl font-bold text-gray-900"&gt;₹{netProfit.toLocaleString('en-IN')}&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="bg-white rounded-lg shadow p-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div className="flex items-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;div className="p-2 bg-purple-100 rounded-lg"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;Users className="w-6 h-6 text-purple-600" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;div className="ml-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p className="text-sm font-medium text-gray-600"&gt;Occupancy Rate&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p className="text-2xl font-bold text-gray-900"&gt;{occupancyRate}%&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>{/* Charts */}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="bg-white rounded-lg shadow p-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h3 className="text-lg font-semibold text-gray-900 mb-4"&gt;Revenue vs Expenses&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;ResponsiveContainer width="100%" height={250}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;LineChart data={revenueData}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;CartesianGrid strokeDasharray="3 3" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;XAxis dataKey="name" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;YAxis /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;Tooltip formatter={(value) =&gt; [`₹${value.toLocaleString('en-IN')}`, '']} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;Legend /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;Line type="monotone" dataKey="revenue" stroke="#3B82F6" strokeWidth={3} name="Revenue" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;Line type="monotone" dataKey="expenses" stroke="#EF4444" strokeWidth={3} name="Expenses" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/LineChart&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/ResponsiveContainer&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="bg-white rounded-lg shadow p-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h3 className="text-lg font-semibold text-gray-900 mb-4"&gt;Expense Categories&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;ResponsiveContainer width="100%" height={250}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;PieChart&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;Pie</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>data={expenseCategories}</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>cx="50%"</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>cy="50%"</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>outerRadius={80}</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>fill="#8884d8"</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>dataKey="value"</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>label={({ name, percent }) =&gt; `${name} ${(percent * 100).toFixed(0)}%`}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>{expenseCategories.map((entry, index) =&gt; (</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;Cell key={`cell-${index}`} fill={entry.color} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>))}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/Pie&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;Tooltip formatter={(value) =&gt; [`₹${value.toLocaleString('en-IN')}`, '']} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/PieChart&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/ResponsiveContainer&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="bg-white rounded-lg shadow p-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h3 className="text-lg font-semibold text-gray-900 mb-4"&gt;B2B vs B2C Revenue&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;ResponsiveContainer width="100%" height={250}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;BarChart data={[</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>{ name: 'B2B', value: guests.filter(g =&gt; g.source === 'B2B').reduce((sum, g) =&gt; sum + g.revenue, 0), fill: '#3B82F6' },</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>{ name: 'B2C', value: guests.filter(g =&gt; g.source === 'B2C').reduce((sum, g) =&gt; sum + g.revenue, 0), fill: '#8B5CF6' }</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>]}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;CartesianGrid strokeDasharray="3 3" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;XAxis dataKey="name" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;YAxis /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;Tooltip formatter={(value) =&gt; [`₹${value.toLocaleString('en-IN')}`, '']} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;Bar dataKey="value" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/BarChart&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/ResponsiveContainer&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>{/* B2B vs B2C Metrics */}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="bg-white rounded-lg shadow p-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div className="flex items-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;div className="p-2 bg-blue-100 rounded-lg"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;Users className="w-6 h-6 text-blue-600" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;div className="ml-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p className="text-sm font-medium text-gray-600"&gt;B2B Guests&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p className="text-2xl font-bold text-gray-900"&gt;{guests.filter(g =&gt; g.source === 'B2B').length}&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="bg-white rounded-lg shadow p-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div className="flex items-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;div className="p-2 bg-purple-100 rounded-lg"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;Users className="w-6 h-6 text-purple-600" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;div className="ml-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p className="text-sm font-medium text-gray-600"&gt;B2C Guests&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p className="text-2xl font-bold text-gray-900"&gt;{guests.filter(g =&gt; g.source === 'B2C').length}&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="bg-white rounded-lg shadow p-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div className="flex items-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;div className="p-2 bg-blue-100 rounded-lg"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;DollarSign className="w-6 h-6 text-blue-600" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;div className="ml-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p className="text-sm font-medium text-gray-600"&gt;B2B Revenue&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p className="text-2xl font-bold text-gray-900"&gt;₹{guests.filter(g =&gt; g.source === 'B2B').reduce((sum, g) =&gt; sum + g.revenue, 0).toLocaleString('en-IN')}&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="bg-white rounded-lg shadow p-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div className="flex items-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;div className="p-2 bg-purple-100 rounded-lg"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;DollarSign className="w-6 h-6 text-purple-600" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;div className="ml-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p className="text-sm font-medium text-gray-600"&gt;B2C Revenue&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p className="text-2xl font-bold text-gray-900"&gt;₹{guests.filter(g =&gt; g.source === 'B2C').reduce((sum, g) =&gt; sum + g.revenue, 0).toLocaleString('en-IN')}&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>)}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>{activeTab === 'guests' &amp;&amp; (</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{/* Search, Filter and Add Guest */}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="bg-white rounded-lg shadow p-6 mb-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div className="flex flex-col sm:flex-row gap-4 flex-1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;div className="flex-1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div className="relative"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;Search className="w-5 h-5 absolute left-3 top-3 text-gray-400" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;input</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>type="text"</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>placeholder="Search guests by name or room..."</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>value={searchTerm}</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>onChange={(e) =&gt; setSearchTerm(e.target.value)}</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;input</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>type="date"</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>value={dateFilter}</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>onChange={(e) =&gt; setDateFilter(e.target.value)}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;button</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>onClick={() =&gt; setShowAddGuest(true)}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>className="bg-blue-600 text-white px-6 py-2 rounded-lg flex items-center space-x-2 hover:bg-blue-700 transition-colors"</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;PlusCircle className="w-4 h-4" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;span&gt;Add New Guest&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>{/* Guest List */}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="bg-white rounded-lg shadow overflow-hidden"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="px-6 py-4 border-b border-gray-200"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h3 className="text-lg font-semibold text-gray-900"&gt;Guest Management&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="overflow-x-auto"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;table className="min-w-full divide-y divide-gray-200"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;thead className="bg-gray-50"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;tr&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"&gt;Guest&lt;/th&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"&gt;Room Type&lt;/th&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"&gt;Check In&lt;/th&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"&gt;Check Out&lt;/th&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"&gt;Source&lt;/th&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"&gt;Status&lt;/th&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"&gt;Revenue&lt;/th&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"&gt;Actions&lt;/th&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/tr&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/thead&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;tbody className="bg-white divide-y divide-gray-200"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>{filteredGuests.map((guest) =&gt; (</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;tr key={guest.id} className="hover:bg-gray-50"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;td className="px-6 py-4 whitespace-nowrap"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div className="text-sm font-medium text-gray-900"&gt;{guest.name}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div className="text-sm text-gray-500"&gt;{guest.guests} guest(s)&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/td&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"&gt;{guest.room}&lt;/td&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"&gt;{guest.checkIn}&lt;/td&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"&gt;{guest.checkOut}&lt;/td&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;td className="px-6 py-4 whitespace-nowrap"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>guest.source === 'B2B'<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                              </span>? 'bg-blue-100 text-blue-800'<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                              </span>: 'bg-purple-100 text-purple-800'</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>}`}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>{guest.source}</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/td&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;td className="px-6 py-4 whitespace-nowrap"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>guest.status === 'active'<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                              </span>? 'bg-green-100 text-green-800'<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                              </span>: 'bg-gray-100 text-gray-800'</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>}`}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>{guest.status}</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/td&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"&gt;₹{guest.revenue.toLocaleString('en-IN')}&lt;/td&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;td className="px-6 py-4 whitespace-nowrap text-sm font-medium"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;div className="flex space-x-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;button<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                              </span>className="text-green-600 hover:text-green-900"</p>
+<p class="p1"><span class="Apple-converted-space">                              </span>onClick={() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>// Edit functionality can be added here</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>alert('Edit functionality coming soon!');</p>
+<p class="p1"><span class="Apple-converted-space">                              </span>}}</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                              </span>&lt;Edit3 className="w-4 h-4" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;button<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                              </span>className="text-red-600 hover:text-red-900"</p>
+<p class="p1"><span class="Apple-converted-space">                              </span>onClick={() =&gt; handleDeleteGuest(guest.id)}</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                              </span>&lt;Trash2 className="w-4 h-4" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/td&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;/tr&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>))}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/tbody&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/table&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>)}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>{activeTab === 'expenses' &amp;&amp; (</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{/* Add Expense Button */}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="mb-6 flex justify-between items-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h2 className="text-xl font-semibold text-gray-900"&gt;Expense Management&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p className="text-gray-600"&gt;Track and manage all resort expenses&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;button</p>
+<p class="p1"><span class="Apple-converted-space">                </span>onClick={() =&gt; setShowAddExpense(true)}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>className="bg-green-600 text-white px-6 py-2 rounded-lg flex items-center space-x-2 hover:bg-green-700 transition-colors"</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;PlusCircle className="w-4 h-4" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;span&gt;Add New Expense&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>{/* Expenses List */}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="bg-white rounded-lg shadow overflow-hidden"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="px-6 py-4 border-b border-gray-200"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h3 className="text-lg font-semibold text-gray-900"&gt;Expense Management&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="overflow-x-auto"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;table className="min-w-full divide-y divide-gray-200"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;thead className="bg-gray-50"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;tr&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"&gt;Category&lt;/th&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"&gt;Description&lt;/th&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"&gt;Date&lt;/th&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"&gt;Amount&lt;/th&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"&gt;Actions&lt;/th&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/tr&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/thead&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;tbody className="bg-white divide-y divide-gray-200"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>{expenses.map((expense) =&gt; (</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;tr key={expense.id} className="hover:bg-gray-50"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;td className="px-6 py-4 whitespace-nowrap"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>{expense.category}</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/td&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;td className="px-6 py-4 text-sm text-gray-900"&gt;{expense.description}&lt;/td&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"&gt;{expense.date}&lt;/td&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"&gt;₹{expense.amount.toLocaleString('en-IN')}&lt;/td&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;td className="px-6 py-4 whitespace-nowrap text-sm font-medium"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;div className="flex space-x-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;button<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                              </span>className="text-green-600 hover:text-green-900"</p>
+<p class="p1"><span class="Apple-converted-space">                              </span>onClick={() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>// Edit functionality can be added here</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>alert('Edit functionality coming soon!');</p>
+<p class="p1"><span class="Apple-converted-space">                              </span>}}</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                              </span>&lt;Edit3 className="w-4 h-4" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;button<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                              </span>className="text-red-600 hover:text-red-900"</p>
+<p class="p1"><span class="Apple-converted-space">                              </span>onClick={() =&gt; handleDeleteExpense(expense.id)}</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                              </span>&lt;Trash2 className="w-4 h-4" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/td&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;/tr&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>))}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/tbody&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/table&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>)}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>{activeTab === 'analytics' &amp;&amp; (</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div className="grid grid-cols-1 lg:grid-cols-2 gap-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="bg-white rounded-lg shadow p-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;h3 className="text-lg font-semibold text-gray-900 mb-4"&gt;Daily Revenue Trend&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;ResponsiveContainer width="100%" height={300}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;BarChart data={revenueData}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;CartesianGrid strokeDasharray="3 3" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;XAxis dataKey="name" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;YAxis /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;Tooltip formatter={(value) =&gt; [`₹${value.toLocaleString('en-IN')}`, '']} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;Bar dataKey="revenue" fill="#3B82F6" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/BarChart&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/ResponsiveContainer&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="bg-white rounded-lg shadow p-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;h3 className="text-lg font-semibold text-gray-900 mb-4"&gt;Guest Statistics&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="space-y-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div className="flex justify-between items-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;span className="text-gray-600"&gt;Total Guests This Month&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;span className="font-semibold"&gt;{guests.reduce((sum, g) =&gt; sum + g.guests, 0)}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div className="flex justify-between items-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;span className="text-gray-600"&gt;Average Stay Duration&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;span className="font-semibold"&gt;3.2 days&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div className="flex justify-between items-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;span className="text-gray-600"&gt;Average Revenue per Guest&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;span className="font-semibold"&gt;₹{Math.round(totalRevenue / guests.length).toLocaleString('en-IN')}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div className="flex justify-between items-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;span className="text-gray-600"&gt;Peak Season Months&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;span className="font-semibold"&gt;Jul, Aug, Dec&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>)}</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>{/* Add Guest Modal */}</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{showAddGuest &amp;&amp; (</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div className="bg-white rounded-lg shadow-xl max-w-md w-full"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="px-6 py-4 border-b border-gray-200"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;h3 className="text-lg font-semibold text-gray-900"&gt;Add New Guest&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;form onSubmit={handleAddGuest} className="p-6 space-y-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;label className="block text-sm font-medium text-gray-700 mb-1"&gt;Guest Name&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;input</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>type="text"</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>required</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>value={newGuest.name}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>onChange={(e) =&gt; setNewGuest({...newGuest, name: e.target.value})}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="grid grid-cols-2 gap-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;label className="block text-sm font-medium text-gray-700 mb-1"&gt;Check In&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;input</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>type="date"</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>required</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>value={newGuest.checkIn}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>onChange={(e) =&gt; setNewGuest({...newGuest, checkIn: e.target.value})}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;label className="block text-sm font-medium text-gray-700 mb-1"&gt;Check Out&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;input</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>type="date"</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>required</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>value={newGuest.checkOut}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>onChange={(e) =&gt; setNewGuest({...newGuest, checkOut: e.target.value})}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="grid grid-cols-2 gap-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;label className="block text-sm font-medium text-gray-700 mb-1"&gt;No. of Guests&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;input</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>type="number"</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>min="1"</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>required</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>value={newGuest.guests}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>onChange={(e) =&gt; setNewGuest({...newGuest, guests: parseInt(e.target.value)})}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;label className="block text-sm font-medium text-gray-700 mb-1"&gt;Source&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;select</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>value={newGuest.source}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>onChange={(e) =&gt; setNewGuest({...newGuest, source: e.target.value})}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;option value="B2C"&gt;B2C (Direct Customer)&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;option value="B2B"&gt;B2B (Business Partner)&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="grid grid-cols-2 gap-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;label className="block text-sm font-medium text-gray-700 mb-1"&gt;Room Type&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;select</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>required</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>value={newGuest.room}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>onChange={(e) =&gt; setNewGuest({...newGuest, room: e.target.value})}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;option value=""&gt;Select Room Type&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;option value="Full Villa"&gt;Full Villa&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;option value="Top Floor"&gt;Top Floor&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;option value="Bottom Floor"&gt;Bottom Floor&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;label className="block text-sm font-medium text-gray-700 mb-1"&gt;Total Revenue (₹)&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;input</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>type="number"</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>min="0"</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>step="1"</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>required</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>placeholder="Enter amount in rupees"</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>value={newGuest.revenue || ''}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>onChange={(e) =&gt; setNewGuest({...newGuest, revenue: e.target.value})}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="flex justify-end space-x-3 pt-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>type="button"</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>onClick={() =&gt; setShowAddGuest(false)}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>Cancel</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>type="submit"</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>Add Guest</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/form&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>)}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>{/* Add Expense Modal */}</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{showAddExpense &amp;&amp; (</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div className="bg-white rounded-lg shadow-xl max-w-md w-full"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="px-6 py-4 border-b border-gray-200"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;h3 className="text-lg font-semibold text-gray-900"&gt;Add New Expense&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;form onSubmit={handleAddExpense} className="p-6 space-y-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;label className="block text-sm font-medium text-gray-700 mb-1"&gt;Category&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;select</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>value={newExpense.category}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>onChange={(e) =&gt; setNewExpense({...newExpense, category: e.target.value})}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;option value="Maintenance"&gt;Maintenance&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;option value="Staff"&gt;Staff&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;option value="Utilities"&gt;Utilities&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;option value="Supplies"&gt;Supplies&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;option value="Marketing"&gt;Marketing&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;option value="Food &amp; Beverage"&gt;Food &amp; Beverage&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;option value="Insurance"&gt;Insurance&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;option value="Other"&gt;Other&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;label className="block text-sm font-medium text-gray-700 mb-1"&gt;Description&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;input</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>type="text"</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>required</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>value={newExpense.description}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>onChange={(e) =&gt; setNewExpense({...newExpense, description: e.target.value})}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="grid grid-cols-2 gap-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;label className="block text-sm font-medium text-gray-700 mb-1"&gt;Date&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;input</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>type="date"</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>required</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>value={newExpense.date}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>onChange={(e) =&gt; setNewExpense({...newExpense, date: e.target.value})}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;label className="block text-sm font-medium text-gray-700 mb-1"&gt;Amount (₹)&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;input</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>type="number"</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>min="0"</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>step="1"</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>required</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>placeholder="Enter amount in rupees"</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>value={newExpense.amount || ''}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>onChange={(e) =&gt; setNewExpense({...newExpense, amount: e.target.value})}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="flex justify-end space-x-3 pt-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>type="button"</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>onClick={() =&gt; setShowAddExpense(false)}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>Cancel</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>type="submit"</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>Add Expense</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/form&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>)}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>);</p>
+<p class="p1">};</p>
+<p class="p2"><br></p>
+<p class="p1">export default ResortDashboard;</p>
+</body>
+</html>
